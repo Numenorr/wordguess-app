@@ -2,40 +2,24 @@
   import words from "../words.json";
   import Icon from "@iconify/svelte";
   import PalavraSecreta from "../components/palavraSecreta.svelte";
+  import PalavraSignificado from "../components/palavraSignificado.svelte";
+  import Palavrachances from "../components/palavrachances.svelte";
 
-  let word = words[Math.floor(Math.random() * 21)];
+  let palavra = words[Math.floor(Math.random() * 18)];
   let guess = "";
   let acertou = false;
   let loading = false;
   let wordDef = null;
   let chances = 0;
 
-  console.log(word);
-
-  async function pesquisarPalavra() {
-    loading = true;
-    wordDef = null;
-    acertou = false;
-    try {
-      let res = await fetch("https://dicio-api-ten.vercel.app/v2/" + word);
-      let data = await res.json();
-      if (Array.isArray(data)) {
-        wordDef = data[0];
-      } else {
-        wordDef = "No result";
-      }
-      loading = false;
-    } catch (err) {
-      loading = false;
-    }
-  }
+  console.log(palavra);
 
   async function novaPalavra() {
-    word = words[Math.floor(Math.random() * 28)];
+    palavra = words[Math.floor(Math.random() * 18)];
     chances = 0;
     acertou = false;
     try {
-      let res = await fetch("https://dicio-api-ten.vercel.app/v2/" + word);
+      let res = await fetch("https://dicio-api-ten.vercel.app/v2/" + palavra);
       let data = await res.json();
       if (Array.isArray(data)) {
         wordDef = data[0];
@@ -49,7 +33,7 @@
 
   function adivinhar() {
     if (chances <= 5)
-      if (guess === word) {
+      if (guess.toLowerCase() === palavra) {
         acertou = true;
         console.log("acertou");
       } else {
@@ -63,11 +47,15 @@
 <article>
   <button on:click={novaPalavra}>Nova palavra</button>
   <PalavraSecreta
-    numLetras={word.length}
-    letras={word}
+    numLetras={palavra.length}
+    letras={palavra}
     {acertou}
   />
+  {#if chances > 0}
+    <Palavrachances {acertou} />
+  {/if}
 </article>
+
 <form>
   {#if acertou === false}
     <input
@@ -89,31 +77,8 @@
     type="submit">Adivinhar</button
   >
 </form>
-<Icon icon="basil:check-outline" />
-<Icon icon="basil:cross-outline" />
-<article>
-  <button
-    role="button"
-    class="outline"
-    data-tooltip="Mudar significado da palavra secreta"
-    on:click={pesquisarPalavra}
-  >
-    <Icon
-      icon="mdi:dice-multiple-outline"
-      width="26"
-      height="26"
-    />
-  </button>
-  {#if wordDef !== null}
-    <blockquote>
-      {wordDef.meanings[Math.floor(Math.random() * wordDef.meanings.length)]}
-    </blockquote>
-  {:else}
-    <h1 aria-busy="true" />
-  {/if}
-</article>
 
-<section>
-  Descrições retiradas de
-  <a href="https://www.dicio.com.br/">Dicio</a>.
-</section>
+<PalavraSignificado
+  word={palavra}
+  {wordDef}
+/>

@@ -29,4 +29,10 @@
     display: flex;
     justify-content: center;
   }
+
+  div.grid > div {
+    border: 1px solid;
+    border-radius: 5px;
+    padding: 0.9em;
+  }
 </style>
